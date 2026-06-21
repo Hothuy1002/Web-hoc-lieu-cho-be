@@ -1,8 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@700;800;950&family=Inter:wght@700;800;900&family=Nunito:wght@400;500;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-brand: "Nunito", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --font-vietnam: "Be Vietnam Pro", sans-serif;
   --font-sans: "Quicksand", ui-sans-serif, system-ui, sans-serif;
   --color-brand-orange: #f97316;
   --color-brand-green: #22c55e;

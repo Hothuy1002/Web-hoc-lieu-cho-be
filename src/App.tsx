@@ -35,7 +35,8 @@ import {
   CartModal, 
   ProfileModal, 
   ProductDetailModal, 
-  PromoModal 
+  PromoModal,
+  CheckoutPaymentModal
 } from './components/Modals';
 
 import { supabase } from './supabaseClient';
@@ -158,6 +159,7 @@ export default function App() {
   const [isWorksheetModalOpen, setIsWorksheetModalOpen] = useState(false);
   const [selectedWorksheetId, setSelectedWorksheetId] = useState<string | null>(null);
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [isAddProfileOpen, setIsAddProfileOpen] = useState(false);
   const [isProductDetailOpen, setIsProductDetailOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
@@ -472,26 +474,46 @@ export default function App() {
     showToast("Đã xóa giáo cụ khỏi giỏ hàng", "success");
   };
 
-  const handleCheckout = async () => {
-    setCart([]);
+  const handleStartCheckout = () => {
     setIsCartModalOpen(false);
-    playBeep(650, 200);
-    showToast("Đặt mua thành công! Tư vấn viên Tiger Kids sẽ liên hệ mẹ sớm nhất.", "success");
+    setIsCheckoutModalOpen(true);
+    playBeep(600, 100);
+  };
+
+  const handleCompleteCheckout = async (info: {
+    name: string;
+    phone: string;
+    address: string;
+    notes: string;
+    method: 'banking' | 'cod';
+    totalPrice: number;
+    orderCode: string;
+  }) => {
+    playBeep(650, 250);
+    showToast(`Hóa đơn ${info.orderCode} đã được khởi tạo!`, "success");
 
     // Optionally record orders to Supabase if order logs table is set up
     if (supabaseConnected) {
       try {
         const itemsSummary = cart.map(item => ({ id: item.id, name: item.name, quantity: item.quantity, price: item.price }));
-        const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
         await supabase.from("orders").insert({
           profile_id: activeProfileId,
           items: itemsSummary,
-          total_price: totalPrice
+          total_price: info.totalPrice,
+          delivery_name: info.name,
+          delivery_phone: info.phone,
+          delivery_address: info.address,
+          delivery_notes: info.notes,
+          payment_method: info.method,
+          order_code: info.orderCode
         });
       } catch (err) {
         console.warn("Could not log order to Supabase orders table (optional):", err);
       }
     }
+
+    // Delay clearing the cart slightly or immediately so success screen is correct
+    setCart([]);
   };
 
   // Content Repo CRUD
@@ -648,8 +670,8 @@ export default function App() {
                 <MascotTigerSVG className="w-full h-full" />
               </div>
               <div>
-                <h1 className="font-brand font-extrabold text-lg md:text-xl bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent leading-tight tracking-wide">
-                  HỌC LIỆU<br />CHO BÉ
+                <h1 className="font-vietnam font-black text-[15px] md:text-[17px] bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent leading-normal tracking-wide whitespace-nowrap">
+                  HỌC LIỆU CHO BÉ
                 </h1>
                 <p className="font-sans text-[10px] text-slate-400 font-bold tracking-wider mt-0.5 uppercase">Cổng giáo dục toàn diện</p>
               </div>
@@ -1607,7 +1629,7 @@ export default function App() {
         onAddQuantity={handleAddQuantity}
         onSubtractQuantity={handleSubtractQuantity}
         onRemoveItem={handleRemoveCartItem}
-        onCheckout={handleCheckout}
+        onCheckout={handleStartCheckout}
       />
 
       {/* 3. Profile Add overlays */}
@@ -1624,6 +1646,10 @@ export default function App() {
         productId={selectedProductId}
         shopProducts={shopProducts}
         onAddToCart={handleAddToCart}
+        onBuyNow={(id) => {
+          handleAddToCart(id);
+          setIsCheckoutModalOpen(true);
+        }}
         playBeep={playBeep}
       />
 
@@ -1632,6 +1658,16 @@ export default function App() {
         isOpen={isPromoOpen}
         onClose={() => setIsPromoOpen(false)}
         onClickPromo={() => { setIsPromoOpen(false); setActiveTab('shop'); playBeep(600, 150); }}
+      />
+
+      {/* 6. Product Checkout & Payment Modal Sheet */}
+      <CheckoutPaymentModal
+        isOpen={isCheckoutModalOpen}
+        onClose={() => setIsCheckoutModalOpen(false)}
+        cart={cart}
+        onCompletePayment={handleCompleteCheckout}
+        playBeep={playBeep}
+        showToast={(m, t) => showToast(m, t === 'error' ? 'error' : 'success')}
       />
 
       {/* Floating Smart Tutor AI assistant Hổ */}

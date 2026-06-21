@@ -1038,7 +1038,12 @@ export const FlashcardDeck: React.FC<FlashcardDeckProps> = ({
   };
 
   // Speak helper using native Google Chrome Speech Synthesis API for standard Vietnamese and English
-  const handleSpeakText = (e: React.MouseEvent, text: string, langCode: 'en-US' | 'vi-VN') => {
+  const handleSpeakText = (
+    e: React.MouseEvent, 
+    text: string, 
+    langCode: 'en-US' | 'vi-VN', 
+    mode: 'normal' | 'slow' | 'spelling' = 'normal'
+  ) => {
     e.stopPropagation(); // Avoid flipping the card
     playBeep(650, 80);
     
@@ -1051,7 +1056,11 @@ export const FlashcardDeck: React.FC<FlashcardDeckProps> = ({
       window.speechSynthesis.cancel(); // Stop any currently playing audio immediately
 
       let cleanText = text;
-      if (langCode === 'vi-VN') {
+      if (langCode === 'en-US' && mode === 'spelling') {
+        const letters = text.trim().split('').filter(c => /[a-zA-Z]/i.test(c));
+        // Use spaces and dots to trigger a natural letter-by-letter spelling pronunciation
+        cleanText = letters.join('. ') + '. ... ' + text;
+      } else if (langCode === 'vi-VN') {
         // Strip dashes and brackets to speak clean chunks
         cleanText = text
           .replace(/-/g, ' ')
@@ -1135,12 +1144,26 @@ export const FlashcardDeck: React.FC<FlashcardDeckProps> = ({
         ) || allVoices.find(voice => voice.lang.substring(0, 2) === 'en');
 
         if (usVoice) utterance.voice = usVoice;
-        utterance.rate = 0.85; // Natural speed for English learning kids
-        utterance.pitch = 1.05; // Slightly cheerful pitch
         
-        window.speechSynthesis.speak(utterance);
-        const nameLabel = usVoice ? usVoice.name : 'Mặc định';
-        showToast(`⚡ Tiger phát âm tiếng Anh (${nameLabel}): "${text}"`);
+        if (mode === 'slow') {
+          utterance.rate = 0.40; // Very slow for kid's listening
+          utterance.pitch = 1.0;
+          window.speechSynthesis.speak(utterance);
+          const nameLabel = usVoice ? usVoice.name : 'Mặc định';
+          showToast(`🐢 Tiger phát âm chậm (${nameLabel}): "${text}"`);
+        } else if (mode === 'spelling') {
+          utterance.rate = 0.65; // Reasonable spelling pace
+          utterance.pitch = 1.05;
+          window.speechSynthesis.speak(utterance);
+          const nameLabel = usVoice ? usVoice.name : 'Mặc định';
+          showToast(`🔤 Tiger đánh vần (${nameLabel}): ${text.toUpperCase().split('').join('-')}`);
+        } else {
+          utterance.rate = 0.82; // Natural speed for kids
+          utterance.pitch = 1.05; // Slightly cheerful pitch
+          window.speechSynthesis.speak(utterance);
+          const nameLabel = usVoice ? usVoice.name : 'Mặc định';
+          showToast(`⚡ Tiger phát âm tiếng Anh (${nameLabel}): "${text}"`);
+        }
       }
     } catch (err) {
       console.error("Speech Synthesis error:", err);
@@ -1385,17 +1408,47 @@ export const FlashcardDeck: React.FC<FlashcardDeckProps> = ({
                         )}
                       </div>
 
-                      <button 
-                        onClick={(e) => handleSpeakText(e, frontText, isVietFirst ? 'vi-VN' : 'en-US')}
-                        className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95 ${
-                          isVietFirst 
-                            ? 'bg-rose-50 hover:bg-rose-100 text-rose-600' 
-                            : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-600'
-                        }`}
-                      >
-                        <Volume2 size={15} className={isVietFirst ? 'text-rose-500' : 'text-indigo-500'} /> 
-                        Nghe đọc {isVietFirst ? '🇻🇳' : '🇺🇸'}
-                      </button>
+                      {/* FRONT Side Pronunciation Button/Controls */}
+                      {!isVietFirst ? (
+                        <div className="flex flex-col gap-1 w-full items-center mt-1" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-1 bg-indigo-50/80 p-1 rounded-2xl border border-indigo-100 shadow-3xs w-full max-w-[250px]">
+                            <button 
+                              onClick={(e) => handleSpeakText(e, frontText, 'en-US', 'normal')}
+                              className="flex-1 py-1.5 text-[10px] font-black bg-indigo-600 text-white rounded-xl shadow-xs transition-all flex items-center justify-center gap-0.5 cursor-pointer hover:bg-indigo-700 hover:scale-102 active:scale-98"
+                              title="Đọc bình thường"
+                            >
+                              ⚡ Thường
+                            </button>
+                            <button 
+                              onClick={(e) => handleSpeakText(e, frontText, 'en-US', 'slow')}
+                              className="flex-1 py-1.5 text-[10px] font-black bg-white hover:bg-indigo-100/50 text-indigo-700 rounded-xl border border-indigo-150 transition-all flex items-center justify-center gap-0.5 cursor-pointer hover:scale-102 active:scale-98"
+                              title="Đọc chậm rãi"
+                            >
+                              🐢 Chậm
+                            </button>
+                            <button 
+                              onClick={(e) => handleSpeakText(e, frontText, 'en-US', 'spelling')}
+                              className="flex-1 py-1.5 text-[10px] font-black bg-white hover:bg-indigo-100/50 text-indigo-700 rounded-xl border border-indigo-150 transition-all flex items-center justify-center gap-0.5 cursor-pointer hover:scale-102 active:scale-98"
+                              title="Đánh vần từng chữ cái"
+                            >
+                              🔤 Đánh vần
+                            </button>
+                          </div>
+                          <span className="text-[9px] text-indigo-400 font-extrabold select-none">Nhấn để nghe giọng đọc bản xứ</span>
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={(e) => handleSpeakText(e, frontText, isVietFirst ? 'vi-VN' : 'en-US')}
+                          className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95 ${
+                            isVietFirst 
+                              ? 'bg-rose-50 hover:bg-rose-100 text-rose-600' 
+                              : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-600'
+                          }`}
+                        >
+                          <Volume2 size={15} className={isVietFirst ? 'text-rose-500' : 'text-indigo-500'} /> 
+                          Nghe đọc {isVietFirst ? '🇻🇳' : '🇺🇸'}
+                        </button>
+                      )}
                     </div>
 
                     {/* BACK side */}
@@ -1419,13 +1472,43 @@ export const FlashcardDeck: React.FC<FlashcardDeckProps> = ({
                         )}
                       </div>
 
-                      <button 
-                        onClick={(e) => handleSpeakText(e, backText, isVietFirst ? 'en-US' : 'vi-VN')}
-                        className="px-4 py-2 bg-white/25 hover:bg-white/40 text-white rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
-                      >
-                        <Volume2 size={15} className="text-white" /> 
-                        Nghe đối chiếu {isVietFirst ? '🇺🇸' : '🇻🇳'}
-                      </button>
+                      {/* BACK Side Pronunciation Button/Controls */}
+                      {isVietFirst ? (
+                        <div className="flex flex-col gap-1 w-full items-center mt-1" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-1 bg-white/20 p-1 rounded-2xl border border-white/30 shadow-3xs w-full max-w-[250px]">
+                            <button 
+                              onClick={(e) => handleSpeakText(e, backText, 'en-US', 'normal')}
+                              className="flex-1 py-1.5 text-[10px] font-black bg-white text-orange-600 rounded-xl shadow-xs transition-all flex items-center justify-center gap-0.5 cursor-pointer hover:bg-amber-50 hover:scale-102 active:scale-98"
+                              title="Đọc bình thường"
+                            >
+                              ⚡ Thường
+                            </button>
+                            <button 
+                              onClick={(e) => handleSpeakText(e, backText, 'en-US', 'slow')}
+                              className="flex-1 py-1.5 text-[10px] font-black bg-white/20 hover:bg-white/30 text-white rounded-xl transition-all flex items-center justify-center gap-0.5 cursor-pointer hover:scale-102 active:scale-98"
+                              title="Đọc chậm rãi"
+                            >
+                              🐢 Chậm
+                            </button>
+                            <button 
+                              onClick={(e) => handleSpeakText(e, backText, 'en-US', 'spelling')}
+                              className="flex-1 py-1.5 text-[10px] font-black bg-white/20 hover:bg-white/30 text-white rounded-xl transition-all flex items-center justify-center gap-0.5 cursor-pointer hover:scale-102 active:scale-98"
+                              title="Đánh vần từng chữ cái"
+                            >
+                              🔤 Đánh vần
+                            </button>
+                          </div>
+                          <span className="text-[9px] text-amber-100 font-extrabold select-none">Nhấn để nghe giọng đọc bản xứ</span>
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={(e) => handleSpeakText(e, backText, isVietFirst ? 'en-US' : 'vi-VN')}
+                          className="px-4 py-2 bg-white/25 hover:bg-white/40 text-white rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+                        >
+                          <Volume2 size={15} className="text-white" /> 
+                          Nghe đối chiếu {isVietFirst ? '🇺🇸' : '🇻🇳'}
+                        </button>
+                      )}
                     </div>
 
                   </div>
