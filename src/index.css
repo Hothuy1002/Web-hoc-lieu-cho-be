@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-brand: "Nunito", sans-serif;
+  --font-sans: "Quicksand", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-orange: #f97316;
+  --color-brand-green: #22c55e;
+  --color-brand-teal: #0d9488;
+  --color-brand-gold: #eab308;
+  --color-brand-blue: #1d4ed8;
+  --color-brand-pastel-green: #f0fdf4;
+  --color-brand-pastel-orange: #fff7ed;
+  --color-brand-pastel-purple: #faf5ff;
+  --color-brand-pastel-blue: #f0f9ff;
+}
+
+/* Biệu ứng lật thẻ 3D */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+.mascot-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.95; }
+}
+.pulse-active {
+  animation: pulse-soft 2s infinite;
+}
+
+@keyframes mascotBreathing {
+  0%, 100% { transform: translateY(0px) scaleY(1); }
+  50% { transform: translateY(-4px) scaleY(1.02); }
+}
+.animate-mascot-breath {
+  animation: mascotBreathing 3s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes starBlink {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+.animate-star-blink {
+  animation: starBlink 2s ease-in-out infinite;
+}
+
+@keyframes earWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(5deg); }
+}
+.animate-ear-wiggle {
+  animation: earWiggle 2.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes bounceSoft {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+.animate-bounce-soft {
+  animation: bounceSoft 3s ease-in-out infinite;
+}
+
+/* Custom scrollbar hiding */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Styles print */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #worksheetPrintArea, #worksheetPrintArea * {
+    visibility: visible;
+  }
+  #worksheetPrintArea {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

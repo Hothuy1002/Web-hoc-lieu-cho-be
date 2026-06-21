@@ -1,0 +1,6 @@
+{
+  "name": "Tiger Kids",
+  "description": "Cổng học liệu tương tác thông thái và giáo trình in nét đứt học toán tiếng Anh mầm non chuẩn sư phạm cho trẻ em từ 3 đến 9 tuổi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
