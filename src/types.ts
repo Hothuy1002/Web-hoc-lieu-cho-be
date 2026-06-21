@@ -51,6 +51,9 @@ export interface Message {
 }
 
 export interface Milestone {
+  id: string;
+  level: 'mam_non' | 'lop_1' | 'lop_2' | 'lop_3';
+  subject: 'toan' | 'tieng_viet' | 'tieng_anh' | 'ky_nang';
   milestone: string;
   detail: string;
 }

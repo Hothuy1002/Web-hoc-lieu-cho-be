@@ -15,7 +15,7 @@ import {
   FileMinus,
   Database
 } from 'lucide-react';
-import { DigitalContent, Product } from '../types';
+import { DigitalContent, Product, Milestone } from '../types';
 
 interface AdminCMSProps {
   digitalContent: DigitalContent[];
@@ -24,11 +24,16 @@ interface AdminCMSProps {
   onUpdateContent: (updatedItem: DigitalContent) => void;
   shopProducts: Product[];
   onAddProduct: (product: Product) => void;
+  onUpdateProduct: (product: Product) => void;
   onDeleteProduct: (id: string) => void;
   playBeep: (freq: number, dur: number) => void;
   showToast: (msg: string, type?: 'success' | 'points' | 'error') => void;
   onNavigateToRepo: () => void;
   supabaseConnected: boolean | null;
+  milestones: Milestone[];
+  onAddMilestone: (item: Milestone) => void;
+  onDeleteMilestone: (id: string) => void;
+  onUpdateMilestone: (updated: Milestone) => void;
 }
 
 export const AdminCMS: React.FC<AdminCMSProps> = ({
@@ -38,17 +43,30 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({
   onUpdateContent,
   shopProducts,
   onAddProduct,
+  onUpdateProduct,
   onDeleteProduct,
   playBeep,
   showToast,
   onNavigateToRepo,
-  supabaseConnected
+  supabaseConnected,
+  milestones,
+  onAddMilestone,
+  onDeleteMilestone,
+  onUpdateMilestone
 }) => {
   // Authentication State
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+
+  // Registered credentials (stored in localStorage)
+  const [adminUser, setAdminUser] = useState(() => localStorage.getItem('admin_username') || 'admin');
+  const [adminPass, setAdminPass] = useState(() => localStorage.getItem('admin_password') || 'admin');
+
+  // Change credentials form state
+  const [updateUserForm, setUpdateUserForm] = useState(() => localStorage.getItem('admin_username') || 'admin');
+  const [updatePassForm, setUpdatePassForm] = useState(() => localStorage.getItem('admin_password') || 'admin');
 
   // Form State for Adding Content
   const [cmsTitle, setCmsTitle] = useState('');
@@ -69,6 +87,29 @@ export const AdminCMS: React.FC<AdminCMSProps> = ({
   const [editingContentId, setEditingContentId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDesc, setEditDesc] = useState('');
+
+  // Editing State for Product
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [editProdNameReg, setEditProdNameReg] = useState('');
+  const [editProdPriceReg, setEditProdPriceReg] = useState(0);
+  const [editProdOldPriceReg, setEditProdOldPriceReg] = useState(0);
+  const [editProdEmojiReg, setEditProdEmojiReg] = useState('');
+  const [editProdDescReg, setEditProdDescReg] = useState('');
+
+  // Form State for Adding Milestone
+  const [mileTitle, setMileTitle] = useState('');
+  const [mileDetail, setMileDetail] = useState('');
+  const [mileLevel, setMileLevel] = useState<'mam_non' | 'lop_1' | 'lop_2' | 'lop_3'>('mam_non');
+  const [mileSubject, setMileSubject] = useState<'toan' | 'tieng_viet' | 'tieng_anh' | 'ky_nang'>('tieng_anh');
+
+  // Editing State for Milestone
+  const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
+  const [editMileTitle, setEditMileTitle] = useState('');
+  const [editMileDetail, setEditMileDetail] = useState('');
+
+  // Filter States for Admin Milestone Manager
+  const [adminMileLevelFilter, setAdminMileLevelFilter] = useState<string>('all');
+  const [adminMileSubjectFilter, setAdminMileSubjectFilter] = useState<string>('all');
 
   // Supabase SQL Viewer States
   const [showSqlCopied, setShowSqlCopied] = useState(false);
@@ -141,13 +182,16 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'admin' && password === 'admin') {
+    if (username === adminUser && password === adminPass) {
       setIsLoggedIn(true);
       setLoginError('');
       playBeep(650, 150);
       showToast('Đăng nhập ban quản trị thành công! Chào Admin nhé.', 'success');
     } else {
-      setLoginError('Tài khoản hoặc mật khẩu không chính xác (gợi ý: admin/admin).');
+      const hint = adminUser === 'admin' && adminPass === 'admin' 
+        ? '(Tên đăng nhập & mật khẩu mặc định là admin/admin)' 
+        : '(Thông tin đăng nhập đã được thay đổi từ mặc định)';
+      setLoginError(`Tài khoản hoặc mật khẩu không chính xác. ${hint}`);
       playBeep(250, 250);
     }
   };
@@ -239,6 +283,109 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
     setEditingContentId(null);
     playBeep(600, 100);
     showToast('Đã lưu chỉnh sửa học liệu thông thái!', 'success');
+  };
+
+  const startEditProduct = (item: Product) => {
+    setEditingProductId(item.id);
+    setEditProdNameReg(item.name);
+    setEditProdPriceReg(item.price);
+    setEditProdOldPriceReg(item.oldPrice);
+    setEditProdEmojiReg(item.image);
+    setEditProdDescReg(item.desc || '');
+    playBeep(480, 100);
+  };
+
+  const saveEditProduct = (id: string) => {
+    const originalItem = shopProducts.find(p => p.id === id);
+    if (!originalItem) return;
+
+    const updatedItem: Product = {
+      ...originalItem,
+      name: editProdNameReg,
+      price: editProdPriceReg,
+      oldPrice: editProdOldPriceReg,
+      image: editProdEmojiReg,
+      desc: editProdDescReg
+    };
+
+    onUpdateProduct(updatedItem);
+    setEditingProductId(null);
+    playBeep(600, 100);
+    showToast('Đã lưu chỉnh sửa giáo cụ đồ chơi!', 'success');
+  };
+
+  const handleUpdateCredentialsSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!updateUserForm.trim()) {
+      showToast('Tên đăng nhập không được để trống!', 'error');
+      return;
+    }
+    if (!updatePassForm.trim()) {
+      showToast('Mật khẩu không được để trống!', 'error');
+      return;
+    }
+    localStorage.setItem('admin_username', updateUserForm.trim());
+    localStorage.setItem('admin_password', updatePassForm.trim());
+    setAdminUser(updateUserForm.trim());
+    setAdminPass(updatePassForm.trim());
+    playBeep(650, 150);
+    showToast('Đã thay đổi thông tin đăng nhập Admin thành công!', 'success');
+  };
+
+  const handleResetCredentials = () => {
+    localStorage.setItem('admin_username', 'admin');
+    localStorage.setItem('admin_password', 'admin');
+    setAdminUser('admin');
+    setAdminPass('admin');
+    setUpdateUserForm('admin');
+    setUpdatePassForm('admin');
+    playBeep(450, 150);
+    showToast('Đã khôi phục thông tin đăng nhập về mặc định!', 'success');
+  };
+
+  const handleAddMilestoneSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mileTitle.trim() || !mileDetail.trim()) {
+      showToast('Vui lòng điền đầy đủ tiêu đề và chi tiết chặng lộ trình.', 'error');
+      return;
+    }
+
+    const newMilestone: Milestone = {
+      id: `mile_${Date.now()}`,
+      level: mileLevel,
+      subject: mileSubject,
+      milestone: mileTitle,
+      detail: mileDetail
+    };
+
+    onAddMilestone(newMilestone);
+    setMileTitle('');
+    setMileDetail('');
+    playBeep(600, 150);
+    showToast(`Đã thêm chặng học "${newMilestone.milestone}" vào Lộ trình thành công!`, 'success');
+  };
+
+  const startEditMilestone = (m: Milestone) => {
+    setEditingMilestoneId(m.id);
+    setEditMileTitle(m.milestone);
+    setEditMileDetail(m.detail);
+    playBeep(480, 100);
+  };
+
+  const saveEditMilestone = (id: string) => {
+    const original = milestones.find(m => m.id === id);
+    if (!original) return;
+
+    const updated: Milestone = {
+      ...original,
+      milestone: editMileTitle,
+      detail: editMileDetail
+    };
+
+    onUpdateMilestone(updated);
+    setEditingMilestoneId(null);
+    playBeep(600, 100);
+    showToast('Đã lưu chỉnh sửa chặng lộ trình học!', 'success');
   };
 
   if (!isLoggedIn) {
@@ -399,6 +546,63 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
             </p>
           </div>
         )}
+      </div>
+
+      {/* Admin credentials change tool */}
+      <div className="bg-white border-2 border-slate-100 rounded-[2rem] p-6 shadow-sm space-y-4">
+        <h4 className="font-brand font-bold text-base text-slate-800 flex items-center gap-2 border-b pb-3">
+          <span className="text-xl">🛡️</span> Quản Lý Bảo Mật & Thay Đổi Thông Tin Đăng Nhập CMS
+        </h4>
+        
+        <form onSubmit={handleUpdateCredentialsSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+          <div className="md:col-span-4">
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 flex items-center gap-1">
+              Tên đăng nhập mới
+            </label>
+            <input 
+              type="text"
+              required
+              placeholder="Nhập tên đăng nhập mới"
+              value={updateUserForm}
+              onChange={(e) => setUpdateUserForm(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-300 rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-700 outline-none"
+            />
+          </div>
+
+          <div className="md:col-span-4">
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 flex items-center gap-1">
+              Mật khẩu quản trị mới
+            </label>
+            <input 
+              type="text"
+              required
+              placeholder="Nhập mật khẩu mới"
+              value={updatePassForm}
+              onChange={(e) => setUpdatePassForm(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-300 rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-700 outline-none"
+            />
+          </div>
+
+          <div className="md:col-span-4 flex gap-2">
+            <button
+              type="submit"
+              className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all focus:outline-none cursor-pointer h-[38px] flex items-center justify-center gap-1"
+            >
+              Cập nhật tài khoản
+            </button>
+            <button
+              type="button"
+              onClick={handleResetCredentials}
+              className="px-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold py-2 rounded-xl text-xs transition-all focus:outline-none cursor-pointer h-[38px] flex items-center justify-center"
+              title="Khôi phục đăng nhập mặc định (admin/admin)"
+            >
+              Reset
+            </button>
+          </div>
+        </form>
+        <p className="text-[10px] text-slate-400 font-medium">
+          * Đổi thông tin đăng nhập và mật khẩu bạn muốn sử dụng cho những lần đăng nhập sau. Thông tin này sẽ được lưu trữ cục bộ trong trình duyệt thiết bị của bạn.
+        </p>
       </div>
 
       {/* Forms Grid */}
@@ -580,6 +784,246 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
         </div>
       </div>
 
+      {/* SECTION: QUẢN LÝ LỘ TRÌNH HỌC CHO BÉ */}
+      <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="border-b pb-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+          <div>
+            <h3 className="font-brand font-bold text-xl text-slate-800 flex items-center gap-2">
+              <span className="text-2xl">🌱</span> Quản Lý Lộ Trình Học & Chặng Học Tập
+            </h3>
+            <p className="text-xs text-slate-400 font-medium">Xây dựng, hiệu chỉnh các bài học Tiếng Anh & các môn khoa học phụ trợ tương ứng từng cấp học của bé.</p>
+          </div>
+          <span className="bg-sky-50 text-sky-700 px-3 py-1 text-[10px] font-extrabold rounded-full uppercase tracking-wider">
+            {milestones.length} Chặng Học Hiện Có
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* CỘT FORM: THÊM CHẶNG MỚI */}
+          <div className="lg:col-span-5 space-y-4 border-r border-slate-100 pr-0 lg:pr-8">
+            <h4 className="font-brand font-bold text-sm text-slate-700 flex items-center gap-1.5 uppercase tracking-wide">
+              <Plus size={14} className="text-emerald-500" /> Thêm Chặng Học Tập Mới
+            </h4>
+
+            <form onSubmit={handleAddMilestoneSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Cấp học đề xuất</label>
+                <select 
+                  value={mileLevel}
+                  onChange={(e) => setMileLevel(e.target.value as any)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none"
+                >
+                  <option value="mam_non">Mầm Non (3-5 tuổi)</option>
+                  <option value="lop_1">Chặng Lớp 1 (6-7 tuổi)</option>
+                  <option value="lop_2">Chặng Lớp 2 (7-8 tuổi)</option>
+                  <option value="lop_3">Chặng Lớp 3 (8-9 tuổi)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Môn học bộ môn</label>
+                <select 
+                  value={mileSubject}
+                  onChange={(e) => setMileSubject(e.target.value as any)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none"
+                >
+                  <option value="tieng_anh">🇬🇧 Tiếng Anh chuẩn Cambridge</option>
+                  <option value="toan">➕ Toán duy tư logic</option>
+                  <option value="tieng_viet">📖 Tiếng Việt tập đọc trơn</option>
+                  <option value="ky_nang">🎨 Kỹ năng vận động tinh</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tên chặng / Bài học</label>
+                <input 
+                  type="text"
+                  required
+                  placeholder="Ví dụ: English Basic Colors (Mầm Non)"
+                  value={mileTitle}
+                  onChange={(e) => setMileTitle(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Chi tiết rèn luyện sư phạm</label>
+                <textarea 
+                  required
+                  placeholder="Miêu tả chi tiết kỹ năng đạt được: Bé phát âm chuẩn, trò chơi nhận biết..."
+                  value={mileDetail}
+                  onChange={(e) => setMileDetail(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 focus:bg-white rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 h-24 outline-none resize-none"
+                />
+              </div>
+
+              <button 
+                type="submit"
+                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 focus:outline-none shadow-md cursor-pointer"
+              >
+                <Plus size={12} /> Cập Nhật Trực Tiếp Vào Lộ Trình
+              </button>
+            </form>
+          </div>
+
+          {/* CỘT LIST: DANH SÁCH & BỘ LỌC ĐỂ EDIT/DELETE */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <h4 className="font-brand font-bold text-sm text-slate-700 uppercase tracking-wide">
+                Danh sách bài học lộ trình ({milestones.length})
+              </h4>
+              
+              {/* Filters */}
+              <div className="flex flex-wrap gap-2">
+                <select 
+                  value={adminMileLevelFilter}
+                  onChange={(e) => setAdminMileLevelFilter(e.target.value)}
+                  className="bg-white border border-slate-250 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-600 focus:outline-none"
+                >
+                  <option value="all">Tất cả cấp</option>
+                  <option value="mam_non">Mầm Non</option>
+                  <option value="lop_1">Lớp 1</option>
+                  <option value="lop_2">Lớp 2</option>
+                  <option value="lop_3">Lớp 3</option>
+                </select>
+
+                <select 
+                  value={adminMileSubjectFilter}
+                  onChange={(e) => setAdminMileSubjectFilter(e.target.value)}
+                  className="bg-white border border-slate-250 rounded-lg px-2 py-1 text-[10px] font-bold text-slate-600 focus:outline-none"
+                >
+                  <option value="all">Tất cả môn</option>
+                  <option value="tieng_anh">Tiếng Anh</option>
+                  <option value="toan">Toán</option>
+                  <option value="tieng_viet">Tiếng Việt</option>
+                  <option value="ky_nang">Kỹ năng</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1 no-scrollbar border border-slate-100 rounded-2xl p-2 bg-slate-50/50">
+              {(() => {
+                const filtered = milestones.filter(m => {
+                  const matchLevel = adminMileLevelFilter === 'all' || m.level === adminMileLevelFilter;
+                  const matchSub = adminMileSubjectFilter === 'all' || m.subject === adminMileSubjectFilter;
+                  return matchLevel && matchSub;
+                });
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="py-12 text-center text-slate-400 text-xs font-bold bg-white rounded-xl border">
+                      Không tìm thấy chặng học tập nào khớp với bộ lọc.
+                    </div>
+                  );
+                }
+
+                return filtered.map((m) => {
+                  const isEditing = editingMilestoneId === m.id;
+                  const tagColors: Record<string, string> = {
+                    tieng_anh: 'bg-blue-50 text-blue-600 border border-blue-100',
+                    toan: 'bg-orange-50 text-orange-600 border border-orange-100',
+                    tieng_viet: 'bg-teal-50 text-teal-600 border border-teal-100',
+                    ky_nang: 'bg-purple-50 text-purple-600 border border-purple-100'
+                  };
+                  const labels: Record<string, string> = {
+                    tieng_anh: 'Tiếng Anh',
+                    toan: 'Toán',
+                    tieng_viet: 'Tiếng Việt',
+                    ky_nang: 'Kỹ năng'
+                  };
+                  const classLabels: Record<string, string> = {
+                    mam_non: 'Mầm Non',
+                    lop_1: 'Lớp 1',
+                    lop_2: 'Lớp 2',
+                    lop_3: 'Lớp 3'
+                  };
+
+                  return (
+                    <div 
+                      key={m.id} 
+                      className="p-3 bg-white border border-slate-150 rounded-xl hover:border-slate-350 transition-all space-y-2 shadow-3xs"
+                    >
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          <div>
+                            <label className="text-[9px] font-bold text-slate-400 capitalize">Chỉnh sửa tên chặng</label>
+                            <input 
+                              type="text"
+                              value={editMileTitle}
+                              onChange={(e) => setEditMileTitle(e.target.value)}
+                              className="w-full bg-slate-50 border border-slate-200 focus:bg-white rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[9px] font-bold text-slate-400 capitalize">Chỉnh sửa chi tiết sư phạm</label>
+                            <textarea 
+                              value={editMileDetail}
+                              onChange={(e) => setEditMileDetail(e.target.value)}
+                              className="w-full bg-slate-50 border border-slate-200 focus:bg-white rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-700 h-16 outline-none resize-none"
+                            />
+                          </div>
+                          <div className="flex justify-end gap-1.5 pt-1">
+                            <button 
+                              onClick={() => setEditingMilestoneId(null)}
+                              className="px-2 py-0.5 text-[9px] font-bold bg-slate-200 text-slate-600 rounded cursor-pointer"
+                            >
+                              Hủy
+                            </button>
+                            <button 
+                              onClick={() => saveEditMilestone(m.id)}
+                              className="px-2 py-0.5 text-[9px] font-bold bg-green-500 text-white rounded flex items-center gap-1 cursor-pointer"
+                            >
+                              <Check size={8} /> Lưu lại
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="space-y-1.5">
+                            <div className="flex flex-wrap gap-1.5 items-center">
+                              <span className={`text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded ${tagColors[m.subject] || 'bg-slate-100 text-slate-600'}`}>
+                                {labels[m.subject] || 'Chung'}
+                              </span>
+                              <span className="text-[8px] font-extrabold uppercase bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded">
+                                {classLabels[m.level] || 'Lớp'}
+                              </span>
+                            </div>
+                            
+                            <h5 className="font-bold text-xs text-slate-800 line-clamp-1">{m.milestone}</h5>
+                            <p className="text-[11px] text-slate-500 leading-normal font-bold">{m.detail}</p>
+                          </div>
+
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button 
+                              onClick={() => startEditMilestone(m)}
+                              className="p-1 text-slate-500 hover:text-slate-700 bg-slate-50 rounded border border-slate-200 hover:bg-slate-100 transition-all cursor-pointer"
+                              title="Sửa chặng"
+                            >
+                              <Edit3 size={10} />
+                            </button>
+                            <button 
+                              onClick={() => {
+                                onDeleteMilestone(m.id);
+                                playBeep(250, 200);
+                                showToast('Đã xóa chặng khỏi lộ trình học!', 'success');
+                              }}
+                              className="p-1 text-red-500 hover:text-red-700 bg-red-50 rounded border border-red-100 hover:bg-red-100 transition-all cursor-pointer"
+                              title="Xóa chặng"
+                            >
+                              <Trash2 size={10} />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* DETAILED CONTENT & SYSTEM MANAGEMENT LISTS (Crucial completed dynamic features) */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         
@@ -661,11 +1105,9 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
                         </button>
                         <button 
                           onClick={() => {
-                            if (window.confirm(`Bạn muốn xóa học liệu "${item.title}" khỏi hệ thống?`)) {
-                              onDeleteContent(item.id);
-                              playBeep(250, 200);
-                              showToast('Đã xóa học liệu thành công!', 'success');
-                            }
+                            onDeleteContent(item.id);
+                            playBeep(250, 200);
+                            showToast('Đã xóa học liệu thành công!', 'success');
                           }}
                           className="p-1 px-2 text-red-500 bg-white hover:bg-red-50 border border-red-100 rounded-lg transition-all"
                           title="Xóa học liệu"
@@ -689,35 +1131,125 @@ ALTER TABLE orders DISABLE ROW LEVEL SECURITY;`;
 
           <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1 no-scrollbar">
             {shopProducts.map((p) => {
+              const isEditing = editingProductId === p.id;
               return (
                 <div 
                   key={p.id} 
-                  className="p-4 border border-slate-100 bg-slate-50 rounded-2xl flex items-center justify-between gap-3 hover:border-amber-100 transition-all"
+                  className={`p-4 border rounded-2xl transition-all ${
+                    isEditing 
+                      ? 'border-amber-400 bg-amber-50/20' 
+                      : 'border-slate-100 bg-slate-50 hover:border-amber-100'
+                  }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-3.5xl p-2 bg-white rounded-xl shadow-sm border border-slate-100 inline-block shrink-0">{p.image}</span>
-                    <div className="space-y-1">
-                      <h5 className="font-bold text-sm text-slate-800 line-clamp-1">{p.name}</h5>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-xs font-bold text-orange-600">{p.price.toLocaleString('vi-VN')}đ</span>
-                        <span className="text-[10px] text-slate-400 line-through">{p.oldPrice.toLocaleString('vi-VN')}đ</span>
+                  {isEditing ? (
+                    <div className="w-full space-y-3">
+                      <div className="flex gap-2 items-center border-b pb-1.5">
+                        <span className="text-amber-600 text-lg">💡</span>
+                        <h5 className="font-bold text-xs text-slate-800">Chỉnh sửa thông số giáo cụ đồ chơi</h5>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <div className="sm:col-span-1">
+                          <label className="block text-[9px] font-bold text-slate-400 uppercase mb-1">Emoji đại diện</label>
+                          <input 
+                            type="text"
+                            value={editProdEmojiReg}
+                            onChange={(e) => setEditProdEmojiReg(e.target.value)}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 outline-none text-center"
+                          />
+                        </div>
+                        <div className="sm:col-span-3">
+                          <label className="block text-[9px] font-bold text-slate-400 uppercase mb-1">Tên giáo cụ đồ chơi</label>
+                          <input 
+                            type="text"
+                            value={editProdNameReg}
+                            onChange={(e) => setEditProdNameReg(e.target.value)}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[9px] font-bold text-slate-400 uppercase mb-1">Giá bán mới (đ)</label>
+                          <input 
+                            type="number"
+                            value={editProdPriceReg}
+                            onChange={(e) => setEditProdPriceReg(Number(e.target.value))}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-slate-400 uppercase mb-1">Giá gốc ban đầu (đ)</label>
+                          <input 
+                            type="number"
+                            value={editProdOldPriceReg}
+                            onChange={(e) => setEditProdOldPriceReg(Number(e.target.value))}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-700 outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[9px] font-bold text-slate-400 uppercase mb-1">Mô tả chi tiết giáo cụ</label>
+                        <textarea 
+                          value={editProdDescReg}
+                          onChange={(e) => setEditProdDescReg(e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-700 h-16 outline-none resize-none"
+                        />
+                      </div>
+
+                      <div className="flex justify-end gap-1.5 pt-1">
+                        <button 
+                          onClick={() => setEditingProductId(null)}
+                          className="px-2.5 py-1 text-[10px] font-bold bg-slate-200 text-slate-600 rounded cursor-pointer"
+                        >
+                          Hủy
+                        </button>
+                        <button 
+                          onClick={() => saveEditProduct(p.id)}
+                          className="px-2.5 py-1 text-[10px] font-bold bg-emerald-500 text-white rounded flex items-center gap-1 cursor-pointer"
+                        >
+                          <Check size={10} /> Lưu thay đổi
+                        </button>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex items-center justify-between gap-3 w-full">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3.5xl p-2 bg-white rounded-xl shadow-sm border border-slate-100 inline-block shrink-0">{p.image}</span>
+                        <div className="space-y-1">
+                          <h5 className="font-bold text-sm text-slate-800 line-clamp-1">{p.name}</h5>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xs font-bold text-orange-600">{p.price.toLocaleString('vi-VN')}đ</span>
+                            <span className="text-[10px] text-slate-400 line-through">{p.oldPrice.toLocaleString('vi-VN')}đ</span>
+                          </div>
+                          {p.desc && <p className="text-[11px] text-slate-400 line-clamp-1">{p.desc}</p>}
+                        </div>
+                      </div>
 
-                  <button 
-                    onClick={() => {
-                      if (window.confirm(`Bạn muốn gỡ bán giáo cụ "${p.name}"?`)) {
-                        onDeleteProduct(p.id);
-                        playBeep(250, 200);
-                        showToast('Đã gỡ bán sản phẩm đồ chơi thành công!', 'success');
-                      }
-                    }}
-                    className="p-1 px-2 text-red-500 bg-white hover:bg-red-50 border border-red-100 rounded-lg transition-all"
-                    title="Xóa sản phẩm"
-                  >
-                    <Trash2 size={12} />
-                  </button>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button 
+                          onClick={() => startEditProduct(p)}
+                          className="p-1 px-2 text-slate-500 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition-all cursor-pointer"
+                          title="Sửa sản phẩm"
+                        >
+                          <Edit3 size={11} />
+                        </button>
+                        <button 
+                          onClick={() => {
+                            onDeleteProduct(p.id);
+                            playBeep(250, 200);
+                            showToast('Đã gỡ bán sản phẩm đồ chơi thành công!', 'success');
+                          }}
+                          className="p-1 px-2 text-red-500 bg-white hover:bg-red-50 border border-red-100 rounded-lg transition-all cursor-pointer"
+                          title="Xóa sản phẩm"
+                        >
+                          <Trash2 size={11} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}

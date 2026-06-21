@@ -68,28 +68,32 @@ const initialProducts: Product[] = [
   { id: "micro_nature", name: "Kính hiển vi mini bỏ túi khám phá thế giới tự nhiên", price: 230000, oldPrice: 460000, image: "🔬", rating: 4.9, downloads: 1530, desc: "Độ phóng đại cao, tích hợp đèn LED tiện lợi giúp bé thỏa sức tò mò soi rõ từng chiếc lá, sợi vải xung quanh." }
 ];
 
-const learningPathData: Record<string, Milestone[]> = {
-  mam_non: [
-    { milestone: "Chặng 1: Làm quen hình thái", detail: "Nhận biết các màu sắc cơ bản (Đỏ, vàng, xanh) và hình học khối cơ bản (Tròn, vuông, tam giác) thông qua trò chơi trực quan." },
-    { milestone: "Chặng 2: Nền tảng số đếm", detail: "Bé đếm thạo các số từ 1 đến 10, tập nối nét đứt chữ số mầm non và tập tô mẫu vẽ con vật quen thuộc." },
-    { milestone: "Chặng 3: Nhận biết ngôn ngữ", detail: "Nhận biết âm thanh 29 chữ cái tiếng Việt cơ bản và ghi nhớ được tối thiểu 20 từ vựng tiếng Anh về chủ đề động vật." }
-  ],
-  lop_1: [
-    { milestone: "Chặng 1: Tập đọc trơn tru", detail: "Đọc thành thạo đoạn văn bản từ 5-10 câu đơn, phát âm đúng chính tả các vần ghép phức tạp tiếng Việt." },
-    { milestone: "Chặng 2: Phép toán phạm vi 20", detail: "Thực hiện thành thạo phép cộng và trừ phạm vi 20 không nhớ, bắt đầu làm quen toán đố lời văn ngắn gọn." },
-    { milestone: "Chặng 3: Tiếng Anh giao tiếp", detail: "Tự giới thiệu bản thân cơ bản, nhận diện đồ dùng học tập và thời tiết thông qua Flashcards của trường." }
-  ],
-  lop_2: [
-    { milestone: "Chặng 1: Nhân chia cơ bản", detail: "Học thuộc bảng cửu chương 2, 3, 4, 5 và giải toán có lời văn có 2 phép tính liên tiếp." },
-    { milestone: "Chặng 2: Đọc hiểu văn bản tốt", detail: "Luyện kỹ năng chính tả viết tay mượt mà, rèn tư duy tóm tắt cốt truyện ngắn sau khi được nghe kể." },
-    { milestone: "Chặng 3: Tiếng Anh chuẩn Cambridge", detail: "Mở rộng vốn từ vựng Starters, tập viết cụm câu đúng cấu trúc thì hiện tại đơn giản." }
-  ],
-  lop_3: [
-    { milestone: "Chặng 1: Toán tư duy nâng cao", detail: "Tính chu vi diện tích hình chữ nhật, hình vuông, làm quen phép nhân chia ngoài bảng cửu chương." },
-    { milestone: "Chặng 2: Viết văn sáng tạo ngắn", detail: "Phát triển tư duy ngôn ngữ để viết các đoạn văn miêu tả sự vật, gia đình hoặc con vật yêu thích của bé." },
-    { milestone: "Chặng 3: Tiếng Anh thuyết trình", detail: "Tự tin giới thiệu về gia đình, trường lớp của bé bằng tiếng Anh có chuẩn bị trước tranh ảnh bổ trợ." }
-  ]
-};
+const initialMilestones: Milestone[] = [
+  // MẦM NON
+  { id: "mn_ta_1", level: "mam_non", subject: "tieng_anh", milestone: "English ABC Wordplay (Mầm Non)", detail: "Bé ghi nhớ 10 bảng chữ cái đầu tiên (A-J), làm quen phát âm chuẩn cùng các từ vựng đồ dùng gia đình đơn giản." },
+  { id: "mn_ta_2", level: "mam_non", subject: "tieng_anh", milestone: "English Animals & Fruits (Mầm Non)", detail: "Học nhận diện 20 từ vựng tiếng Anh chủ đề động vật nuôi và trái cây quen thuộc qua tranh ảnh sinh động." },
+  { id: "mn_ta_3", level: "mam_non", subject: "tieng_anh", milestone: "English Basic Colors (Mầm Non)", detail: "Nhận diện và nói chuẩn tên các màu sắc cơ bản bằng tiếng Anh (Red, Yellow, Blue, Green) qua bài hát trực quan." },
+  { id: "mn_toan_1", level: "mam_non", subject: "toan", milestone: "Nền tảng số đếm", detail: "Nhận biết khối tròn, vuông, hình học cơ bản kết hợp tập đếm thạo các số từ 1 đến 10." },
+  { id: "mn_tv_1", level: "mam_non", subject: "tieng_viet", milestone: "Làm quen bảng chữ cái tiếng Việt", detail: "Nhận biết nguyên âm đơn giản và làm quen 29 âm sắc cơ bản tiếng mẹ đẻ." },
+
+  // LỚP 1
+  { id: "l1_ta_1", level: "lop_1", subject: "tieng_anh", milestone: "English Welcome & Hello (Lớp 1)", detail: "Bé tự giới thiệu bản thân cơ bản, biết cách chào hỏi và nói trạng thái sức khỏe đơn giản." },
+  { id: "l1_ta_2", level: "lop_1", subject: "tieng_anh", milestone: "English Classroom Objects (Lớp 1)", detail: "Làm thạo 10 từ vựng tiếng Anh về đồ dùng học tập hàng ngày (Book, Pen, Bag, Ruler...) kèm trò chơi lật hình." },
+  { id: "l1_ta_3", level: "lop_1", subject: "tieng_anh", milestone: "English My Family Members (Lớp 1)", detail: "Nhận biết và gọi tên tiếng Anh chuẩn cho mẹ, cha, anh chị em và thú cưng yêu quý của bé." },
+  { id: "l1_toan_1", level: "lop_1", subject: "toan", milestone: "Toán học phạm vi 20", detail: "Thực hiện thành thạo các phép cộng, trừ phạm vi 20 không nhớ và làm quen toán đố đơn giản." },
+
+  // LỚP 2
+  { id: "l2_ta_1", level: "lop_2", subject: "tieng_anh", milestone: "English Interactive Action Verbs (Lớp 2)", detail: "Sử dụng linh hoạt các động từ hành động phổ biến (Run, Sing, Read, Draw, Play) để tương tác giao tiếp." },
+  { id: "l2_ta_2", level: "lop_2", subject: "tieng_anh", milestone: "English My Sweet Home (Lớp 2)", detail: "Đặt tên chuẩn cho các phòng ngủ, bếp, khách và dùng trôi chảy vị trí giới từ đơn (In, On, Under)." },
+  { id: "l2_ta_3", level: "lop_2", subject: "tieng_anh", milestone: "English Cambridge Starters Vocabulary (Lớp 2)", detail: "Củng cố mở rộng từ vựng chuẩn khung Cambridge Starters, tập ghi cụm từ đúng ngữ pháp cơ bản." },
+  { id: "l2_toan_1", level: "lop_2", subject: "toan", milestone: "Phép nhân & Chia nền tảng", detail: "Học thuộc bảng cửu chương nhân từ 2 đến 5 và rèn luyện thuật toán chia số dư cơ bản." },
+
+  // LỚP 3
+  { id: "l3_ta_1", level: "lop_3", subject: "tieng_anh", milestone: "English Weather & Activities (Lớp 3)", detail: "Hỏi và mô tả chính xác kiểu thời tiết (It's sunny/rainy/cloudy) và nói về hoạt động dã ngoại ngoài trời." },
+  { id: "l3_ta_2", level: "lop_3", subject: "tieng_anh", milestone: "English Telling Time & Schedule (Lớp 3)", detail: "Nắm vững kỹ năng hỏi và trả lời thông tin giờ giấc cụ thể (What time is it?) trong sinh hoạt hàng ngày." },
+  { id: "l3_ta_3", level: "lop_3", subject: "tieng_anh", milestone: "English Dream Jobs & Presentation (Lớp 3)", detail: "Tự tin thuyết trình 2 phút giới thiệu về ước mơ nghề nghiệp tương lai (Doctor, Teacher, Astronaut...)." },
+  { id: "l3_toan_1", level: "lop_3", subject: "toan", milestone: "Hình học và Nhân chia phức tạp", detail: "Tính chu vi diện tích hình chữ nhật, hình vuông, làm quen nhân chia ngoài bảng cửu chương." }
+];
 
 export default function App() {
   // Navigation / Navigation Tab
@@ -111,6 +115,36 @@ export default function App() {
 
   // Interactive Milestones Tab
   const [activePathLevel, setActivePathLevel] = useState<string>('mam_non');
+  const [activePathSubject, setActivePathSubject] = useState<string>('all'); // 'all' or dynamic subjects
+  
+  const [milestones, setMilestones] = useState<Milestone[]>(() => {
+    const saved = localStorage.getItem('tiger_kids_milestones');
+    return saved ? JSON.parse(saved) : initialMilestones;
+  });
+
+  const handleAddMilestone = (m: Milestone) => {
+    setMilestones(prev => {
+      const updated = [m, ...prev];
+      localStorage.setItem('tiger_kids_milestones', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleDeleteMilestone = (id: string) => {
+    setMilestones(prev => {
+      const updated = prev.filter(m => m.id !== id);
+      localStorage.setItem('tiger_kids_milestones', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleUpdateMilestone = (updatedItem: Milestone) => {
+    setMilestones(prev => {
+      const updated = prev.map(m => m.id === updatedItem.id ? updatedItem : m);
+      localStorage.setItem('tiger_kids_milestones', JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   // Toast Notification State
   const [toastMessage, setToastMessage] = useState('');
@@ -536,6 +570,26 @@ export default function App() {
     }
   };
 
+  const handleUpdateProduct = async (updatedItem: Product) => {
+    setShopProducts(prev => prev.map(p => p.id === updatedItem.id ? updatedItem : p));
+
+    if (supabaseConnected) {
+      try {
+        await supabase.from("products").update({
+          name: updatedItem.name,
+          price: updatedItem.price,
+          old_price: updatedItem.oldPrice,
+          image: updatedItem.image,
+          rating: updatedItem.rating,
+          downloads: updatedItem.downloads,
+          description: updatedItem.desc
+        }).eq("id", updatedItem.id);
+      } catch (err) {
+        console.error("Supabase update product failed:", err);
+      }
+    }
+  };
+
   const handleDeleteProduct = async (id: string) => {
     setShopProducts(prev => prev.filter(p => p.id !== id));
 
@@ -605,57 +659,57 @@ export default function App() {
             <nav className="hidden xl:flex items-center gap-1.5">
               <button 
                 onClick={() => { setActiveTab('home'); playBeep(450, 80); }}
-                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all ${
-                  activeTab === 'home' ? 'text-orange-600 bg-orange-50Ordered bg-orange-50' : 'text-slate-600 hover:bg-slate-100'
+                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'home' ? 'text-orange-600 bg-orange-50' : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                <Home size={16} className="inline mr-1.5" /> Trang Chủ
+                <Home size={16} /> <span>Trang Chủ</span>
               </button>
               
               <button 
                 onClick={() => { setActiveTab('learningPaths'); playBeep(450, 80); }}
-                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all ${
-                  activeTab === 'learningPaths' ? 'text-green-600 bg-green-100/50 bg-green-50' : 'text-slate-600 hover:bg-slate-100'
+                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'learningPaths' ? 'text-green-600 bg-green-50' : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                <Map size={16} className="inline mr-1.5" /> Lộ Trình Học
+                <Map size={16} /> <span>Lộ Trình Học</span>
               </button>
 
               <button 
                 onClick={() => { setActiveTab('contentRepository'); playBeep(450, 80); }}
-                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all ${
+                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
                   activeTab === 'contentRepository' ? 'text-teal-600 bg-teal-50' : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                <FolderOpen size={16} className="inline mr-1.5" /> Kho Học Liệu
+                <FolderOpen size={16} /> <span>Kho Học Liệu</span>
               </button>
 
               <button 
                 onClick={() => { setActiveTab('shop'); playBeep(450, 80); }}
-                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all ${
+                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
                   activeTab === 'shop' ? 'text-amber-600 bg-amber-50' : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                <ShoppingBag size={16} className="inline mr-1.5" /> Cửa Hàng
+                <ShoppingBag size={16} /> <span>Cửa Hàng</span>
               </button>
 
               <button 
                 onClick={() => { setActiveTab('parentZone'); playBeep(450, 80); }}
-                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all ${
+                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
                   activeTab === 'parentZone' ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                <ShieldCheck size={16} className="inline mr-1.5" /> Góc Phụ Huynh
+                <ShieldCheck size={16} /> <span>Góc Phụ Huynh</span>
               </button>
 
               <button 
                 onClick={() => { setActiveTab('adminCMS'); playBeep(450, 80); }}
-                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all ${
+                className={`px-3.5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
                   activeTab === 'adminCMS' ? 'text-slate-900 bg-slate-100' : 'text-slate-600 hover:bg-slate-100'
                 }`}
                 id="btn-nav-cms"
               >
-                <Sliders size={16} className="inline mr-1.5" /> CMS
+                <Sliders size={16} /> <span>CMS</span>
               </button>
             </nav>
 
@@ -815,13 +869,15 @@ export default function App() {
                 {/* 1. Account */}
                 <div className="bg-gradient-to-tr from-orange-50/60 to-orange-100/10 border border-orange-100 rounded-3xl p-5 flex flex-col justify-between hover:shadow-md transition-all">
                   <div className="space-y-3">
-                    <span className="text-3xl">👧</span>
-                    <h4 className="font-brand font-bold text-lg text-slate-850">1. Quản Trị Trẻ</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">Hồ sơ cá nhân hóa cho từng bé, tích lũy điểm thưởng đổi các combo quà tặng cao cấp.</p>
+                    <div className="flex justify-center mb-1">
+                      <span className="text-3xl bg-white p-2.5 rounded-2xl shadow-3xs border border-slate-100 w-14 h-14 flex items-center justify-center">👧</span>
+                    </div>
+                    <h4 className="font-brand font-bold text-lg text-slate-850 text-center">1. Quản Trị Trẻ</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed text-center">Hồ sơ cá nhân hóa cho từng bé, tích lũy điểm thưởng đổi các combo quà tặng cao cấp.</p>
                   </div>
                   <button 
                     onClick={() => setIsProfileDropdownOpen(true)}
-                    className="mt-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl shadow-xs transition-all focus:outline-none"
+                    className="mt-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl shadow-xs transition-all focus:outline-none cursor-pointer"
                   >
                     Thay đổi hồ sơ bé
                   </button>
@@ -830,13 +886,15 @@ export default function App() {
                 {/* 2. Paths */}
                 <div className="bg-gradient-to-tr from-green-50/60 to-green-100/10 border border-green-150 rounded-3xl p-5 flex flex-col justify-between hover:shadow-md transition-all">
                   <div className="space-y-3">
-                    <span className="text-3xl">🗺️</span>
-                    <h4 className="font-brand font-bold text-lg text-slate-850">2. Lộ Trình Vàng</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">Chia tách 4 khoảng thời gian từ mầm non khơi gợi học hỏi cho tới lớp 1, 2, 3 toán rèn chữ.</p>
+                    <div className="flex justify-center mb-1">
+                      <span className="text-3xl bg-white p-2.5 rounded-2xl shadow-3xs border border-slate-100 w-14 h-14 flex items-center justify-center">🗺️</span>
+                    </div>
+                    <h4 className="font-brand font-bold text-lg text-slate-850 text-center">2. Lộ Trình Vàng</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed text-center">Chia tách 4 khoảng thời gian từ mầm non khơi gợi học hỏi cho tới lớp 1, 2, 3 toán rèn chữ.</p>
                   </div>
                   <button 
                     onClick={() => { setActiveTab('learningPaths'); playBeep(450, 100); }}
-                    className="mt-4 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-xl shadow-xs transition-all focus:outline-none"
+                    className="mt-4 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-xl shadow-xs transition-all focus:outline-none cursor-pointer"
                   >
                     Xem chặng thông minh
                   </button>
@@ -845,13 +903,15 @@ export default function App() {
                 {/* 3. Repo */}
                 <div className="bg-gradient-to-tr from-teal-50/60 to-teal-100/10 border border-teal-150 rounded-3xl p-5 flex flex-col justify-between hover:shadow-md transition-all">
                   <div className="space-y-3">
-                    <span className="text-3xl">📚</span>
-                    <h4 className="font-brand font-bold text-lg text-slate-850">3. Kho Tư Liệu Số</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">File tập vẽ, học tiếng Anh in ngay tại nhà, truyện video cổ tích nâng tư duy giao tiếp.</p>
+                    <div className="flex justify-center mb-1">
+                      <span className="text-3xl bg-white p-2.5 rounded-2xl shadow-3xs border border-slate-100 w-14 h-14 flex items-center justify-center">📚</span>
+                    </div>
+                    <h4 className="font-brand font-bold text-lg text-slate-850 text-center">3. Kho Tư Liệu Số</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed text-center">File tập vẽ, học tiếng Anh in ngay tại nhà, truyện video cổ tích nâng tư duy giao tiếp.</p>
                   </div>
                   <button 
                     onClick={() => { setActiveTab('contentRepository'); playBeep(450, 100); }}
-                    className="mt-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-xs font-bold rounded-xl shadow-xs transition-all focus:outline-none"
+                    className="mt-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-xs font-bold rounded-xl shadow-xs transition-all focus:outline-none cursor-pointer"
                   >
                     Sưu tầm học liệu
                   </button>
@@ -860,15 +920,17 @@ export default function App() {
                 {/* 4. Products */}
                 <div className="bg-gradient-to-tr from-yellow-50/60 to-yellow-105/10 border border-yellow-150 rounded-3xl p-5 flex flex-col justify-between hover:shadow-md transition-all">
                   <div className="space-y-3">
-                    <span className="text-3xl">🧸</span>
-                    <h4 className="font-brand font-bold text-lg text-slate-850">4. Đồ Chơi Montessori</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">Đồ chơi STEM rèn luyện cơ tay hữu cơ an toàn cho sức khỏe và kích ứng tư duy hình khối.</p>
+                    <div className="flex justify-center mb-1">
+                      <span className="text-3xl bg-white p-2.5 rounded-2xl shadow-3xs border border-slate-100 w-14 h-14 flex items-center justify-center">🧸</span>
+                    </div>
+                    <h4 className="font-brand font-bold text-lg text-slate-850 text-center">4. Đồ Chơi Montessori</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed text-center">Đồ chơi STEM rèn luyện cơ tay hữu cơ an toàn cho sức khỏe và kích ứng tư duy hình khối.</p>
                   </div>
                   <button 
                     onClick={() => { setActiveTab('shop'); playBeep(450, 100); }}
-                    className="mt-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 text-xs font-bold rounded-xl shadow-xs transition-all focus:outline-none"
+                    className="mt-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 text-xs font-bold rounded-xl shadow-xs transition-all focus:outline-none cursor-pointer"
                   >
-                    Vào góc mua sắm
+                     Vào góc mua sắm
                   </button>
                 </div>
 
@@ -955,7 +1017,7 @@ export default function App() {
               </span>
               <h3 className="text-2xl sm:text-3xl font-brand font-bold text-slate-800">Lộ Trình Từng Chặng Phát Triển</h3>
               <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-                Đồng hành cùng bé qua từng bậc lớp học để nắm trọn vẹn kiến thức toàn thể mà không có áp lực học gò ép.
+                Đồng hành cùng bé qua từng bậc lớp học để nắm trọn vẹn kiến thức toàn thể, đặc biệt học lực Tiếng Anh theo chuẩn quốc tế mượt mà, đầy hứng khởi!
               </p>
             </div>
 
@@ -974,8 +1036,9 @@ export default function App() {
                 return (
                   <button
                     key={key}
+                    id={`btn-path-level-${key}`}
                     onClick={() => { setActivePathLevel(key); playBeep(450, 75); }}
-                    className={`py-3.5 px-4 rounded-2xl font-bold transition-all border-2 text-center focus:outline-none ${
+                    className={`py-3.5 px-4 rounded-2xl font-bold transition-all border-2 text-center focus:outline-none cursor-pointer ${
                       isActive 
                         ? 'border-green-500 bg-green-500 text-white shadow-md' 
                         : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
@@ -988,30 +1051,94 @@ export default function App() {
               })}
             </div>
 
+            {/* Subject Filters within Path */}
+            <div className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto">
+              {[
+                { key: 'all', title: 'Tất cả học phần', emoji: '🌟', color: 'bg-slate-100 text-slate-700' },
+                { key: 'tieng_anh', title: 'Tiếng Anh Chuẩn Cambridge', emoji: '💬', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+                { key: 'toan', title: 'Toán Tư Duy', emoji: '➕', color: 'bg-orange-100 text-orange-700' },
+                { key: 'tieng_viet', title: 'Tiếng Việt Tập Đọc', emoji: '📖', color: 'bg-teal-100 text-teal-700' },
+                { key: 'ky_nang', title: 'Kỹ Năng Vận Động', emoji: '🎨', color: 'bg-purple-100 text-purple-700' },
+              ].map((sub) => {
+                const isActive = activePathSubject === sub.key;
+                return (
+                  <button
+                    key={sub.key}
+                    id={`btn-path-sub-${sub.key}`}
+                    onClick={() => { setActivePathSubject(sub.key); playBeep(500, 70); }}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all outline-none focus:outline-none cursor-pointer border ${
+                      isActive 
+                        ? 'bg-slate-900 border-slate-900 text-white' 
+                        : 'bg-white border-slate-250 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>{sub.emoji}</span>
+                    <span>{sub.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+
             {/* Milestones grid path */}
             <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-6 sm:p-10 shadow-sm">
               <div className="flex flex-col lg:flex-row gap-8 items-center justify-between">
                 
-                <div className="flex-1 space-y-6">
+                <div className="flex-1 space-y-6 w-full">
                   <div>
                     <h4 className="text-xl sm:text-2xl font-brand font-bold text-slate-800 capitalize leading-snug">
                       Hành trình lớp {activePathLevel === 'mam_non' ? 'Mầm Non' : activePathLevel === 'lop_1' ? 'Lớp 1' : activePathLevel === 'lop_2' ? 'Lớp 2' : 'Lớp 3'}
                     </h4>
-                    <p className="text-xs text-slate-400 font-medium">Chi tiết các bậc rèn luyện kĩ năng do ban đào tạo nghiên cứu.</p>
+                    <p className="text-xs text-slate-400 font-medium">Chi tiết lộ trình bài học thông thái cho con yêu rèn luyện.</p>
                   </div>
 
                   <div className="space-y-4">
-                    {(learningPathData[activePathLevel] || []).map((m, idx) => (
-                      <div key={idx} className="flex gap-4 items-start p-3 hover:bg-slate-50/50 rounded-2xl transition-all">
-                        <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-sm shrink-0">
-                          {idx + 1}
-                        </div>
-                        <div className="space-y-1">
-                          <h5 className="font-bold text-sm text-slate-800">{m.milestone}</h5>
-                          <p className="text-xs text-slate-500 leading-relaxed">{m.detail}</p>
-                        </div>
-                      </div>
-                    ))}
+                    {(() => {
+                      const filtered = milestones.filter(m => 
+                        m.level === activePathLevel && 
+                        (activePathSubject === 'all' ? true : m.subject === activePathSubject)
+                      );
+
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="py-12 text-center space-y-2">
+                            <span className="text-4xl">🌸</span>
+                            <p className="text-sm font-bold text-slate-400">Danh mục này hiện chưa có bài học.</p>
+                            <p className="text-xs text-slate-400">Ban quản trị hoặc bố mẹ có thể thêm trực tiếp lộ trình mới ở Bảng Admin!</p>
+                          </div>
+                        );
+                      }
+
+                      return filtered.map((m, idx) => {
+                        const subStyles: Record<string, { bg: string; text: string; icon: string; label: string }> = {
+                          tieng_anh: { bg: 'bg-blue-50 border-blue-100', text: 'text-blue-600', icon: '💬', label: 'Tiếng Anh' },
+                          toan: { bg: 'bg-orange-50 border-orange-100', text: 'text-orange-600', icon: '➕', label: 'Toán học' },
+                          tieng_viet: { bg: 'bg-teal-50 border-teal-100', text: 'text-teal-600', icon: '📖', label: 'Tiếng Việt' },
+                          ky_nang: { bg: 'bg-purple-50 border-purple-100', text: 'text-purple-600', icon: '🎨', label: 'Kỹ năng' }
+                        };
+                        const style = subStyles[m.subject] || { bg: 'bg-slate-50 border-slate-100', text: 'text-slate-600', icon: '⭐', label: 'Chung' };
+
+                        return (
+                          <div 
+                            key={m.id || idx} 
+                            className={`flex gap-4 items-start p-4 border rounded-2xl hover:shadow-sm transition-all ${style.bg}`}
+                          >
+                            <div className="w-10 h-10 rounded-full bg-white text-slate-700 flex items-center justify-center font-bold text-base shrink-0 shadow-sm border border-slate-100">
+                              {style.icon}
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-white border border-slate-100 shadow-3xs ${style.text}`}>
+                                  {style.label}
+                                </span>
+                                <span className="text-[10px] text-slate-400 font-bold">Chặng {idx + 1}</span>
+                              </div>
+                              <h5 className="font-bold text-sm text-slate-800">{m.milestone}</h5>
+                              <p className="text-xs text-slate-500 leading-relaxed font-semibold">{m.detail}</p>
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
                 </div>
 
@@ -1022,11 +1149,11 @@ export default function App() {
                     </div>
                     <h5 className="font-brand font-bold text-base text-white">Thưởng Hoàn Thành Chặng</h5>
                     <p className="text-xs text-green-150 leading-relaxed">
-                      Lần lượt cùng bé tích luỹ học thạo được 3 chặng của cột mốc này để mở khoá Huy chương tài năng & nhận 200 sao thưởng vào tài khoản!
+                      Lần lượt cùng bé tích luỹ học thạo được các chặng của cột mốc này để mở khoá Huy chương tài năng & nhận 200 sao thưởng vào tài khoản!
                     </p>
                     <button 
                       onClick={() => { setActiveTab('contentRepository'); playBeep(520, 100); }}
-                      className="w-full py-2 bg-white hover:bg-slate-50 text-emerald-600 font-extrabold text-xs rounded-xl transition-all outline-none focus:outline-none"
+                      className="w-full py-2 bg-white hover:bg-slate-50 text-emerald-600 font-extrabold text-xs rounded-xl transition-all outline-none focus:outline-none cursor-pointer"
                     >
                       Bắt đầu thực hành
                     </button>
@@ -1445,10 +1572,15 @@ export default function App() {
               shopProducts={shopProducts}
               onAddProduct={handleAddProduct}
               onDeleteProduct={handleDeleteProduct}
+              onUpdateProduct={handleUpdateProduct}
               playBeep={playBeep}
               showToast={showToast}
               onNavigateToRepo={() => setActiveTab('contentRepository')}
               supabaseConnected={supabaseConnected}
+              milestones={milestones}
+              onAddMilestone={handleAddMilestone}
+              onDeleteMilestone={handleDeleteMilestone}
+              onUpdateMilestone={handleUpdateMilestone}
             />
           </div>
         )}
